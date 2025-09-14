@@ -11,13 +11,19 @@ from openai import OpenAI
 class OpenAIModel(Model):
     def __init__(self, model: str, api_key: str):
         self.model = model
-        self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        os.environ	[	"OPENAI_API_KEY"	] = "sk-Y9P2ZYbyYK0HNbjBjj5s6yddubVCZ36WqCbXEVcYXSQMiaEm"
+        # 这里将官方的接口访问地址替换成便携AI聚合API的入口地址
+        os.environ["OPENAI_BASE_URL"] = "https://www.dmxapi.com/v1"
+        self.client = OpenAI(
+            api_key=os.getenv("OPENAI_API_KEY"),
+            base_url=os.getenv("OPENAI_BASE_URL")
+        )
 
     def make_request(self, prompt):
         attempts = 0
         while attempts < 3:
             try:
-                if self.model == "gpt-3.5-turbo":
+                if self.model == "gpt-4o-mini":
                     response = self.client.chat.completions.create(
                         model=self.model,
                         messages=[
@@ -44,7 +50,10 @@ class OpenAIModel(Model):
                     raise Exception("Rate limit reached. Maximum attempts exceeded.")
             except openai.APIConnectionError as e:
                 print("The server could not be reached")
-                print(e.__cause__)  # an underlying Exception, likely raised within httpx.            except requests.exceptions.Timeout as e:
+                print(e.__cause__)  # an underlying Exception, likely raised within httpx.
+            except requests.exceptions.Timeout as e:
+                print("Request timed out")
+                print(e)
             except openai.APIStatusError as e:
                 print("Another non-200-range status code was received")
                 print(e.status_code)
