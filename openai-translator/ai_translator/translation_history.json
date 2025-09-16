@@ -1,5 +1,35 @@
 [
   {
+    "id": "20250916_201731",
+    "timestamp": "2025-09-16T20:17:31.556301",
+    "input_file": "/tmp/gradio/23b7a758189f03e5de9cf9b59cbd25b0ba7f715cfde3206f0c800d4027370ffa/test.pdf",
+    "filename": "test.pdf",
+    "source_language": "自动检测",
+    "target_language": "中文",
+    "output_file": "./output/test_translated.markdown",
+    "status": "完成",
+    "file_size": 1560738,
+    "start_time": "2025-09-16T20:17:31.556357",
+    "end_time": "2025-09-16T20:18:11.622088",
+    "duration": "0:00:40.065731",
+    "error_message": null
+  },
+  {
+    "id": "20250916_193050",
+    "timestamp": "2025-09-16T19:30:50.136240",
+    "input_file": "/tmp/gradio/23b7a758189f03e5de9cf9b59cbd25b0ba7f715cfde3206f0c800d4027370ffa/test.pdf",
+    "filename": "test.pdf",
+    "source_language": "自动检测",
+    "target_language": "中文",
+    "output_file": "./output/test_translated.markdown",
+    "status": "完成",
+    "file_size": 1560738,
+    "start_time": "2025-09-16T19:30:50.136296",
+    "end_time": "2025-09-16T19:31:29.669791",
+    "duration": "0:00:39.533495",
+    "error_message": null
+  },
+  {
     "id": "20250916_174813",
     "timestamp": "2025-09-16T17:48:13.534912",
     "input_file": "/tmp/gradio/23b7a758189f03e5de9cf9b59cbd25b0ba7f715cfde3206f0c800d4027370ffa/test.pdf",

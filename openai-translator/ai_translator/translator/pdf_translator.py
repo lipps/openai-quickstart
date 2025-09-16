@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Callable
 from model import Model
 from translator.pdf_parser import PDFParser
 from translator.writer import Writer
@@ -10,11 +10,14 @@ class PDFTranslator:
         self.pdf_parser = PDFParser()
         self.writer = Writer()
 
-    def translate_pdf(self, pdf_file_path: str, file_format: str = 'PDF', target_language: str = '中文', output_file_path: str = None, pages: Optional[int] = None):
+    def translate_pdf(self, pdf_file_path: str, file_format: str = 'PDF', target_language: str = '中文', output_file_path: str = None, pages: Optional[int] = None, progress_callback: Optional[Callable] = None):
         self.book = self.pdf_parser.parse_pdf(pdf_file_path, pages)
 
         for page_idx, page in enumerate(self.book.pages):
             for content_idx, content in enumerate(page.contents):
+                if progress_callback:
+                    progress_callback(page_idx, content_idx, len(page.contents))
+                
                 prompt = self.model.translate_prompt(content, target_language)
                 LOG.debug(prompt)
                 translation, status = self.model.make_request(prompt)

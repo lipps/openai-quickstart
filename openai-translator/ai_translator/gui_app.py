@@ -2,6 +2,7 @@ import gradio as gr
 import os
 import sys
 import threading
+import time
 from typing import Optional, List, Dict, Any
 
 # 添加当前目录到路径
@@ -33,7 +34,11 @@ class TranslatorGUI:
         self.current_translator = None
         self.is_translating = False
         self.current_record_id = None
-        
+        self.progress_status = ""
+        self.progress_overall = 0
+        self.progress_page = 0
+        self.progress_time = ""
+
     def create_interface(self):
         """创建主界面"""
         with gr.Blocks(
@@ -246,97 +251,65 @@ class TranslatorGUI:
                                 model_type: str):
         """开始单文件翻译"""
         if not file_path:
-            return None, "请先选择要翻译的PDF文件", *[None] * 4
-            
-        # 验证文件
+            yield None, "请先选择要翻译的PDF文件", *[None] * 4
+            return
+
         is_valid, message = self.file_upload.validate_file(file_path)
         if not is_valid:
-            return None, f"文件验证失败: {message}", *[None] * 4
-            
+            yield None, f"文件验证失败: {message}", *[None] * 4
+            return
+
         try:
-            # 创建翻译器
             config = self.config_manager.load_config()
-            
-            if model_type == 'OpenAI':
-                model = OpenAIModel(
-                    model=config['OpenAIModel']['model'],
-                    api_key=config['OpenAIModel']['api_key']
-                )
-            else:
-                model = GLMModel(
-                    model_url=config['GLMModel']['model_url'],
-                    timeout=config['GLMModel']['timeout']
-                )
-                
+            model = OpenAIModel(model=config['OpenAIModel']['model'], api_key=config['OpenAIModel']['api_key']) if model_type == 'OpenAI' else GLMModel(model_url=config['GLMModel']['model_url'], timeout=config['GLMModel']['timeout'])
             translator = PDFTranslator(model)
             
-            # 添加到历史记录
-            record_id = self.history_manager.add_record(
-                input_file=file_path,
-                target_language=target_language,
-                status="进行中"
-            )
-            
-            # 开始翻译
+            record_id = self.history_manager.add_record(input_file=file_path, target_language=target_language, status="进行中")
             self.is_translating = True
             self.current_record_id = record_id
-            
-            # 在新线程中执行翻译
+
+            def progress_callback(page_num, content_idx, total_contents):
+                if self.progress_display.start_time is None:
+                    self.progress_display.initialize_progress(len(translator.book.pages))
+                
+                progress_data = self.progress_display.update_page_progress(page_num, content_idx, total_contents)
+                self.progress_overall = progress_data['overall_progress']
+                self.progress_page = progress_data['page_progress']
+                self.progress_status = progress_data['status_message']
+                self.progress_time = progress_data['time_info']
+
             def translate_worker():
                 try:
-                    # 生成输出文件路径
                     base_name = os.path.splitext(os.path.basename(file_path))[0]
                     output_dir = config.get('common', {}).get('output_dir', './output')
                     os.makedirs(output_dir, exist_ok=True)
+                    output_file = os.path.join(output_dir, f"{base_name}_translated.{file_format}")
                     
-                    if file_format == 'markdown':
-                        output_file = os.path.join(output_dir, f"{base_name}_translated.md")
-                    else:
-                        output_file = os.path.join(output_dir, f"{base_name}_translated.pdf")
+                    translator.translate_pdf(file_path, file_format, target_language, output_file, progress_callback=progress_callback)
                     
-                    # 执行翻译
-                    translator.translate_pdf(
-                        pdf_file_path=file_path,
-                        file_format=file_format,
-                        target_language=target_language,
-                        output_file_path=output_file
-                    )
-                    
-                    # 更新历史记录
-                    self.history_manager.update_record(
-                        record_id,
-                        status="完成",
-                        output_file=output_file
-                    )
-                    
-                    return output_file, "翻译完成！"
-                    
+                    self.history_manager.update_record(record_id, status="完成", output_file=output_file)
+                    self.final_result = (output_file, "翻译完成！")
                 except Exception as e:
                     error_msg = str(e)
                     LOG.error(f"翻译失败: {error_msg}")
-                    
-                    # 更新历史记录
-                    self.history_manager.update_record(
-                        record_id,
-                        status="失败",
-                        error_message=error_msg
-                    )
-                    
-                    return None, f"翻译失败: {error_msg}"
+                    self.history_manager.update_record(record_id, status="失败", error_message=error_msg)
+                    self.final_result = (None, f"翻译失败: {error_msg}")
                 finally:
                     self.is_translating = False
-            
-            # 启动翻译线程
+
             thread = threading.Thread(target=translate_worker)
-            thread.daemon = True
             thread.start()
-            
-            return None, "翻译已开始，请查看进度...", *[None] * 4
-            
+
+            while self.is_translating:
+                yield None, "翻译进行中...", self.progress_overall, self.progress_page, self.progress_status, self.progress_time
+                time.sleep(0.1)
+
+            yield self.final_result[0], self.final_result[1], 100, 100, "翻译完成", self.progress_time
+
         except Exception as e:
             error_msg = str(e)
             LOG.error(f"启动翻译失败: {error_msg}")
-            return None, f"启动翻译失败: {error_msg}", *[None] * 4
+            yield None, f"启动翻译失败: {error_msg}", *[None] * 4
     
     def _add_files_to_batch_queue(self,
                                 file_paths: List[str],
