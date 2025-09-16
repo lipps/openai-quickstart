@@ -1,0 +1,32 @@
+[
+  {
+    "id": "20250916_174813",
+    "timestamp": "2025-09-16T17:48:13.534912",
+    "input_file": "/tmp/gradio/23b7a758189f03e5de9cf9b59cbd25b0ba7f715cfde3206f0c800d4027370ffa/test.pdf",
+    "filename": "test.pdf",
+    "source_language": "自动检测",
+    "target_language": "中文",
+    "output_file": "./output/test_translated.md",
+    "status": "完成",
+    "file_size": 1560738,
+    "start_time": "2025-09-16T17:48:13.535007",
+    "end_time": "2025-09-16T17:48:31.694942",
+    "duration": "0:00:18.159935",
+    "error_message": null
+  },
+  {
+    "id": "20250916_174702",
+    "timestamp": "2025-09-16T17:47:02.723566",
+    "input_file": "/tmp/gradio/23b7a758189f03e5de9cf9b59cbd25b0ba7f715cfde3206f0c800d4027370ffa/test.pdf",
+    "filename": "test.pdf",
+    "source_language": "自动检测",
+    "target_language": "中文",
+    "output_file": "./output/test_translated.md",
+    "status": "完成",
+    "file_size": 1560738,
+    "start_time": "2025-09-16T17:47:02.723629",
+    "end_time": "2025-09-16T17:47:32.195798",
+    "duration": "0:00:29.472169",
+    "error_message": null
+  }
+]
