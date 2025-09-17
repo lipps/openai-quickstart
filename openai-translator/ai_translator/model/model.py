@@ -5,8 +5,15 @@ class Model:
         return f"翻译为{target_language}：{text}"
 
     def make_table_prompt(self, table: str, target_language: str) -> str:
-        # return f"翻译为{target_language}，保持间距（空格，分隔符），以表格形式返回：\n{table}"
-        return f"翻译为{target_language}，以空格和换行符表示表格：\n{table}"
+        return f"""请将下面的表格翻译为{target_language}。
+要求：
+1. 保持原始表格结构
+2. 使用 | 作为列分隔符
+3. 每行数据占一行
+4. 直接返回翻译后的表格，不要添加额外说明
+
+原始表格：
+{table}"""
 
     def translate_prompt(self, content, target_language: str) -> str:
         if content.content_type == ContentType.TEXT:

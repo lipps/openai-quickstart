@@ -85,7 +85,7 @@ class TranslatorGUI:
         with gr.Row():
             with gr.Column(scale=1):
                 # 文件上传区域
-                single_file, _, file_info = self.file_upload.create_upload_interface()
+                single_file, file_info = self.file_upload.create_single_upload_interface()
                 
                 # 翻译设置
                 with gr.Group():
@@ -153,7 +153,7 @@ class TranslatorGUI:
         with gr.Row():
             with gr.Column(scale=1):
                 # 批量文件上传
-                _, batch_files, batch_file_info = self.file_upload.create_upload_interface()
+                batch_files, batch_file_info = self.file_upload.create_batch_upload_interface()
                 
                 # 批量设置
                 with gr.Group():
@@ -245,17 +245,39 @@ class TranslatorGUI:
         )
     
     def _start_single_translation(self, 
-                                file_path: str,
+                                file_obj,  # 改为接收文件对象
                                 target_language: str,
                                 file_format: str,
                                 model_type: str):
         """开始单文件翻译"""
-        if not file_path:
+        # 添加详细的调试日志
+        LOG.debug(f"接收到的文件对象: {file_obj}")
+        LOG.debug(f"文件对象类型: {type(file_obj)}")
+        
+        # 处理文件对象
+        if file_obj is None:
+            LOG.warning("文件对象为None")
             yield None, "请先选择要翻译的PDF文件", *[None] * 4
+            return
+        
+        # 获取文件路径
+        try:
+            file_path = file_obj.name if hasattr(file_obj, 'name') else str(file_obj)
+            LOG.debug(f"解析的文件路径: {file_path}")
+        except Exception as e:
+            LOG.error(f"文件路径解析失败: {e}")
+            yield None, "文件路径解析失败，请重新选择文件", *[None] * 4
+            return
+        
+        # 验证文件
+        if not file_path or not os.path.exists(file_path):
+            LOG.warning(f"文件路径无效: {file_path}")
+            yield None, "文件路径无效，请重新选择文件", *[None] * 4
             return
 
         is_valid, message = self.file_upload.validate_file(file_path)
         if not is_valid:
+            LOG.warning(f"文件验证失败: {message}")
             yield None, f"文件验证失败: {message}", *[None] * 4
             return
 

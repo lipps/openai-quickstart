@@ -9,33 +9,37 @@ class FileUploadComponent:
         self.supported_formats = [".pdf"]
         self.max_file_size = 50 * 1024 * 1024  # 50MB
     
-    def create_upload_interface(self):
-        """创建文件上传界面"""
+    def create_single_upload_interface(self):
+        """创建单文件上传界面"""
         with gr.Column():
             gr.Markdown("### 📁 文件上传")
-            
-            # 单文件上传
             single_file = gr.File(
                 label="选择PDF文件",
                 file_types=[".pdf"],
                 file_count="single"
             )
-            
-            # 批量文件上传
-            batch_files = gr.File(
-                label="批量上传PDF文件",
-                file_types=[".pdf"],
-                file_count="multiple"
-            )
-            
-            # 文件信息显示
             file_info = gr.Textbox(
                 label="文件信息",
                 interactive=False,
                 lines=3
             )
-            
-        return single_file, batch_files, file_info
+        return single_file, file_info
+
+    def create_batch_upload_interface(self):
+        """创建批量文件上传界面"""
+        with gr.Column():
+            gr.Markdown("### 📁 文件上传")
+            batch_files = gr.File(
+                label="批量上传PDF文件",
+                file_types=[".pdf"],
+                file_count="multiple"
+            )
+            batch_file_info = gr.Textbox(
+                label="文件信息",
+                interactive=False,
+                lines=3
+            )
+        return batch_files, batch_file_info
     
     def validate_file(self, file_path: str) -> tuple[bool, str]:
         """验证上传的文件"""

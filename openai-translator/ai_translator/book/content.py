@@ -45,20 +45,47 @@ class TableContent(Content):
         try:
             if not isinstance(translation, str):
                 raise ValueError(f"Invalid translation type. Expected str, but got {type(translation)}")
-
-            LOG.debug(translation)
-            # Convert the string to a list of lists
-            table_data = [row.strip().split() for row in translation.strip().split('\n')]
-            LOG.debug(table_data)
-            # Create a DataFrame from the table_data
-            translated_df = pd.DataFrame(table_data[1:], columns=table_data[0])
-            LOG.debug(translated_df)
+            
+            # 使用更智能的解析方式
+            lines = translation.strip().split('\n')
+            table_data = []
+            
+            for line in lines:
+                # 使用 | 作为分隔符，或者尝试其他分隔符
+                if '|' in line:
+                    row = [cell.strip() for cell in line.split('|')]
+                elif '\t' in line:
+                    row = [cell.strip() for cell in line.split('\t')]
+                else:
+                    # 回退到原始方法，但保留完整性
+                    row = [line.strip()]
+                
+                if row and any(cell for cell in row):  # 过滤空行
+                    table_data.append(row)
+            
+            # 确保所有行有相同的列数
+            if table_data:
+                max_cols = max(len(row) for row in table_data)
+                for row in table_data:
+                    while len(row) < max_cols:
+                        row.append('')
+            
+            # 创建DataFrame
+            if len(table_data) > 1:
+                translated_df = pd.DataFrame(table_data[1:], columns=table_data[0])
+            else:
+                translated_df = pd.DataFrame(table_data)
+                
             self.translation = translated_df
             self.status = status
         except Exception as e:
-            LOG.error(f"An error occurred during table translation: {e}")
-            self.translation = None
+            LOG.error(f"Table translation failed: {e}")
+            # 保留原始内容作为降级方案
+            self.translation = self.original
             self.status = False
+    def get_original_as_str(self):
+        # 使用更清晰的表格格式
+        return self.original.to_csv(sep='|', index=False)
 
     def __str__(self):
         return self.original.to_string(header=False, index=False)
