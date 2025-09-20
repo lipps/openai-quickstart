@@ -1,4 +1,7 @@
-from book import ContentType
+try:
+    from ..book import ContentType
+except ImportError:  # pragma: no cover - fallback for direct execution
+    from book import ContentType
 
 class Model:
     def make_text_prompt(self, text: str, target_language: str) -> str:

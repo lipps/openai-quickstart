@@ -7,8 +7,14 @@ from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
 )
 
-from book import Book, ContentType
-from utils import LOG
+try:
+    from ..book import Book, ContentType
+except ImportError:  # pragma: no cover - fallback for direct execution
+    from book import Book, ContentType
+try:
+    from ..utils import LOG
+except ImportError:  # pragma: no cover - fallback for direct execution
+    from utils import LOG
 
 class Writer:
     def __init__(self):

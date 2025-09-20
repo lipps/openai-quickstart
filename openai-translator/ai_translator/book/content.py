@@ -1,7 +1,10 @@
 import pandas as pd
 from enum import Enum, auto
 from PIL import Image as PILImage
-from utils import LOG
+try:
+    from ..utils import LOG
+except ImportError:  # pragma: no cover - fallback for direct execution
+    from utils import LOG
 
 class ContentType(Enum):
     TEXT = auto()

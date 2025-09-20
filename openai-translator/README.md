@@ -35,7 +35,7 @@ The OpenAI Translator is still in its early stages of development, and I'm activ
 - [X] Modular and object-oriented design for easy customization and extension.
 - [ ] Implement a graphical user interface (GUI) for easier use.
 - [ ] Add support for batch processing of multiple PDF files.
-- [ ] Create a web service or API to enable usage in web applications.
+- [X] Create a web service or API to enable usage in web applications (FastAPI).
 - [ ] Add support for other languages and translation directions.
 - [ ] Add support for preserving the original layout and formatting of the source PDF.
 - [ ] Improve translation quality by using custom-trained translation models.
@@ -98,6 +98,26 @@ And an example of how to use the GLM model:
 export GLM_MODEL_URL="http://xxx:xx"
 python ai_translator/main.py --model_type GLMModel --glm_model_url $GLM_MODEL_URL --book tests/test.pdf
 ```
+
+#### Running the FastAPI service:
+
+You can start a synchronous translation API with FastAPI/uvicorn:
+
+```bash
+uvicorn ai_translator.api.app:app --host 0.0.0.0 --port 8000
+```
+
+Once the server is running you can translate a PDF by posting a file (returns the translated document directly):
+
+```bash
+curl -X POST "http://127.0.0.1:8000/translate" \
+  -F "file=@tests/test.pdf" \
+  -F "target_language=中文" \
+  -F "file_format=markdown"
+```
+
+The API also exposes `GET /health` for basic health checks.
+
 
 ## License
 

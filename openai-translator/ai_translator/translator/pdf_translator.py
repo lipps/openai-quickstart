@@ -1,8 +1,20 @@
 from typing import Optional, Callable
-from model import Model
-from translator.pdf_parser import PDFParser
-from translator.writer import Writer
-from utils import LOG
+try:
+    from ..model import Model
+except ImportError:  # pragma: no cover - fallback for direct execution
+    from model import Model
+try:
+    from .pdf_parser import PDFParser
+except ImportError:  # pragma: no cover - fallback for direct execution
+    from pdf_parser import PDFParser
+try:
+    from .writer import Writer
+except ImportError:  # pragma: no cover - fallback for direct execution
+    from writer import Writer
+try:
+    from ..utils import LOG
+except ImportError:  # pragma: no cover - fallback for direct execution
+    from utils import LOG
 
 class PDFTranslator:
     def __init__(self, model: Model):

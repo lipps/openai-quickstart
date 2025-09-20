@@ -1,8 +1,17 @@
 import pdfplumber
 from typing import Optional
-from book import Book, Page, Content, ContentType, TableContent
-from translator.exceptions import PageOutOfRangeException
-from utils import LOG
+try:
+    from ..book import Book, Page, Content, ContentType, TableContent
+except ImportError:  # pragma: no cover - fallback for direct execution
+    from book import Book, Page, Content, ContentType, TableContent
+try:
+    from .exceptions import PageOutOfRangeException
+except ImportError:  # pragma: no cover - fallback for direct execution
+    from exceptions import PageOutOfRangeException
+try:
+    from ..utils import LOG
+except ImportError:  # pragma: no cover - fallback for direct execution
+    from utils import LOG
 
 
 class PDFParser:

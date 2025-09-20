@@ -1,7 +1,10 @@
 import requests
 import simplejson
 
-from model import Model
+try:
+    from .model import Model
+except ImportError:  # pragma: no cover - fallback for direct execution
+    from model import Model
 
 class GLMModel(Model):
     def __init__(self, model_url: str, timeout: int):

@@ -4,8 +4,14 @@ import time
 import os
 import openai
 
-from model import Model
-from utils import LOG
+try:
+    from .model import Model
+except ImportError:  # pragma: no cover - fallback for direct execution
+    from model import Model
+try:
+    from ..utils import LOG
+except ImportError:  # pragma: no cover - fallback for direct execution
+    from utils import LOG
 from openai import OpenAI
 
 class OpenAIModel(Model):
