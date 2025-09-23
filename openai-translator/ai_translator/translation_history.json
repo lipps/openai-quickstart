@@ -1,5 +1,20 @@
 [
   {
+    "id": "20250922_110902",
+    "timestamp": "2025-09-22T11:09:02.382659",
+    "input_file": "/tmp/gradio/23b7a758189f03e5de9cf9b59cbd25b0ba7f715cfde3206f0c800d4027370ffa/test.pdf",
+    "filename": "test.pdf",
+    "source_language": "自动检测",
+    "target_language": "中文",
+    "output_file": "./output/test_translated.markdown",
+    "status": "完成",
+    "file_size": 1560738,
+    "start_time": "2025-09-22T11:09:02.382727",
+    "end_time": "2025-09-22T11:09:56.102762",
+    "duration": "0:00:53.720035",
+    "error_message": null
+  },
+  {
     "id": "20250917_113152",
     "timestamp": "2025-09-17T11:31:52.272481",
     "input_file": "/tmp/gradio/23b7a758189f03e5de9cf9b59cbd25b0ba7f715cfde3206f0c800d4027370ffa/test.pdf",
