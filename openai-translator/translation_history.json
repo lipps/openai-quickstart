@@ -1,0 +1,47 @@
+[
+  {
+    "id": "20250927_174303",
+    "timestamp": "2025-09-27T17:43:03.664237",
+    "input_file": "/private/var/folders/lx/wnvp4mh90g3cjzmhc3xs31q80000gn/T/gradio/d46a3e0bae43eb5c542433d8c4b8b886bf272e5ffa76c3ef964663be89ac7fb4/test.pdf",
+    "filename": "test.pdf",
+    "source_language": "自动检测",
+    "target_language": "中文",
+    "output_file": "./output/test_translated.markdown",
+    "status": "完成",
+    "file_size": 1560738,
+    "start_time": "2025-09-27T17:43:03.664265",
+    "end_time": "2025-09-27T17:43:11.386344",
+    "duration": "0:00:07.722079",
+    "error_message": null
+  },
+  {
+    "id": "20250927_173200",
+    "timestamp": "2025-09-27T17:32:00.856895",
+    "input_file": "/private/var/folders/lx/wnvp4mh90g3cjzmhc3xs31q80000gn/T/gradio/d46a3e0bae43eb5c542433d8c4b8b886bf272e5ffa76c3ef964663be89ac7fb4/test.pdf",
+    "filename": "test.pdf",
+    "source_language": "自动检测",
+    "target_language": "中文",
+    "output_file": "./output/test_translated.markdown",
+    "status": "完成",
+    "file_size": 1560738,
+    "start_time": "2025-09-27T17:32:00.856927",
+    "end_time": "2025-09-27T17:32:09.058929",
+    "duration": "0:00:08.202002",
+    "error_message": null
+  },
+  {
+    "id": "20250927_170041",
+    "timestamp": "2025-09-27T17:00:41.919661",
+    "input_file": "/private/var/folders/lx/wnvp4mh90g3cjzmhc3xs31q80000gn/T/gradio/f804ca7354469efa3490eb064bafcd386d648f2381e6a54c1660fcfd5946625d/The_Old_Man_of_the_Sea.pdf",
+    "filename": "The_Old_Man_of_the_Sea.pdf",
+    "source_language": "自动检测",
+    "target_language": "中文",
+    "output_file": "./output/The_Old_Man_of_the_Sea_translated.markdown",
+    "status": "完成",
+    "file_size": 380238,
+    "start_time": "2025-09-27T17:00:41.919693",
+    "end_time": "2025-09-27T17:10:00.757162",
+    "duration": "0:09:18.837469",
+    "error_message": null
+  }
+]

@@ -1,11 +1,15 @@
 import os
+import base64
 from reportlab.lib import colors, pagesizes, units
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, Image
 )
+from reportlab.lib.utils import ImageReader
+from PIL import Image as PILImage
+import io
 
 try:
     from ..book import Book, ContentType
@@ -74,6 +78,52 @@ class Writer:
                         pdf_table = Table(table.values.tolist())
                         pdf_table.setStyle(table_style)
                         story.append(pdf_table)
+                        
+                    elif content.content_type == ContentType.IMAGE:
+                        # Add image to the PDF
+                        try:
+                            # 获取图片数据
+                            image_data = content.original
+                            if isinstance(image_data, PILImage.Image):
+                                # 将PIL图片转换为BytesIO
+                                img_buffer = io.BytesIO()
+                                # 确保图片格式兼容
+                                if image_data.mode in ('RGBA', 'LA', 'P'):
+                                    image_data = image_data.convert('RGB')
+                                image_data.save(img_buffer, format='JPEG')
+                                img_buffer.seek(0)
+                                
+                                # 创建ReportLab图片对象
+                                reportlab_image = Image(ImageReader(img_buffer))
+                                
+                                # 设置图片大小（保持比例，限制最大宽度）
+                                max_width = 400
+                                img_width, img_height = image_data.size
+                                if img_width > max_width:
+                                    ratio = max_width / img_width
+                                    reportlab_image.drawWidth = max_width
+                                    reportlab_image.drawHeight = img_height * ratio
+                                else:
+                                    reportlab_image.drawWidth = img_width
+                                    reportlab_image.drawHeight = img_height
+                                
+                                story.append(reportlab_image)
+                                
+                                # 添加图片描述（如果有翻译）
+                                if content.translation:
+                                    desc_para = Paragraph(f"<i>{content.translation}</i>", simsun_style)
+                                    story.append(desc_para)
+                                    
+                                LOG.debug(f"添加图片到PDF: {reportlab_image.drawWidth}x{reportlab_image.drawHeight}")
+                                
+                        except Exception as e:
+                            LOG.warning(f"图片添加到PDF失败: {e}")
+                            # 添加占位文本
+                            if hasattr(content, 'description'):
+                                placeholder = Paragraph(f"[图片: {content.description}]", simsun_style)
+                            else:
+                                placeholder = Paragraph("[图片内容]", simsun_style)
+                            story.append(placeholder)
             # Add a page break after each page except the last one
             if page != book.pages[-1]:
                 story.append(PageBreak())
@@ -106,6 +156,56 @@ class Writer:
                             # body = '\n'.join(['| ' + ' | '.join(row) + ' |' for row in table.values.tolist()]) + '\n\n'
                             body = '\n'.join(['| ' + ' | '.join(str(cell) for cell in row) + ' |' for row in table.values.tolist()]) + '\n\n'
                             output_file.write(header + separator + body)
+                            
+                        elif content.content_type == ContentType.IMAGE:
+                            # Add image to the Markdown file
+                            try:
+                                # 保存图片到文件
+                                image_data = content.original
+                                if isinstance(image_data, PILImage.Image):
+                                    # 生成图片文件名
+                                    base_name = os.path.splitext(os.path.basename(output_file_path))[0]
+                                    image_dir = os.path.join(os.path.dirname(output_file_path), f"{base_name}_images")
+                                    os.makedirs(image_dir, exist_ok=True)
+                                    
+                                    # 使用内容的位置信息生成唯一文件名
+                                    if hasattr(content, 'bbox') and content.bbox:
+                                        bbox_str = f"_{int(content.bbox[0])}_{int(content.bbox[1])}"
+                                    else:
+                                        bbox_str = f"_{len(os.listdir(image_dir)) + 1}"
+                                    
+                                    image_filename = f"image{bbox_str}.jpg"
+                                    image_path = os.path.join(image_dir, image_filename)
+                                    
+                                    # 确保图片格式兼容
+                                    if image_data.mode in ('RGBA', 'LA', 'P'):
+                                        image_data = image_data.convert('RGB')
+                                    
+                                    image_data.save(image_path, 'JPEG')
+                                    
+                                    # 生成相对路径用于Markdown
+                                    relative_image_path = os.path.join(f"{base_name}_images", image_filename)
+                                    
+                                    # 写入Markdown图片语法
+                                    if content.translation:
+                                        # 使用翻译后的描述
+                                        output_file.write(f"![{content.translation}]({relative_image_path})\n\n")
+                                        output_file.write(f"*{content.translation}*\n\n")
+                                    else:
+                                        # 使用默认描述
+                                        description = getattr(content, 'description', '图片')
+                                        output_file.write(f"![{description}]({relative_image_path})\n\n")
+                                    
+                                    LOG.debug(f"图片已保存: {image_path}")
+                                    
+                            except Exception as e:
+                                LOG.warning(f"图片保存失败: {e}")
+                                # 添加占位文本
+                                description = getattr(content, 'description', '图片内容')
+                                if content.translation:
+                                    output_file.write(f"**[图片: {content.translation}]**\n\n")
+                                else:
+                                    output_file.write(f"**[图片: {description}]**\n\n")
 
                 # Add a page break (horizontal rule) after each page except the last one
                 if page != book.pages[-1]:

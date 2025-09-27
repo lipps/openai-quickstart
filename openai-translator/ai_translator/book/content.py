@@ -34,6 +34,33 @@ class Content:
         return False
 
 
+class ImageContent(Content):
+    def __init__(self, image_data, bbox=None, description=None, translation=None):
+        """
+        图片内容类
+        Args:
+            image_data: PIL图片对象或图片数据
+            bbox: 图片在页面中的位置信息 (x0, y0, x1, y1)
+            description: 图片描述文本
+            translation: 图片描述的翻译
+        """
+        self.bbox = bbox
+        self.description = description
+        super().__init__(ContentType.IMAGE, image_data, translation)
+    
+    def set_description(self, description):
+        """设置图片描述"""
+        self.description = description
+    
+    def get_description(self):
+        """获取图片描述"""
+        return self.description or "图片内容"
+    
+    def check_translation_type(self, translation):
+        # 图片的翻译是描述文本的翻译
+        return isinstance(translation, str)
+
+
 class TableContent(Content):
     def __init__(self, data, translation=None):
         df = pd.DataFrame(data)
